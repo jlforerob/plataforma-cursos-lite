@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plataforma de Cursos</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    #login, #content { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { color: #333; }
+    .course { margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 15px; }
+    button { padding: 10px 15px; background-color: #0078D7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005a9e; }
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Bienvenido</h2>
+  <p>Ingresa tu nombre para continuar:</p>
+  <input type="text" id="nombre" placeholder="Ej: maria.gomez" />
+  <button onclick="verificarUsuario()">Ingresar</button>
+  <p id="error" style="color: red;"></p>
+</div>
+
+<div id="content" style="display:none;">
+  <h2>Cursos disponibles</h2>
+  <div id="cursos"></div>
+</div>
+
+<script>
+  const estudiantesAutorizados = ["maria.gomez", "juan.perez", "laura.rojas"];
+
+  function verificarUsuario() {
+    const nombre = document.getElementById("nombre").value.trim().toLowerCase();
+    if (estudiantesAutorizados.includes(nombre)) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("content").style.display = "block";
+      cargarCursos();
+    } else {
+      document.getElementById("error").innerText = "Usuario no autorizado.";
+    }
+  }
+
+  function cargarCursos() {
+    fetch("https://api-cursos-lite-2025-g5bdembcfkedbbej.canadacentral-01.azurewebsites.net/api/getCourses")
+      .then(res => res.json())
+      .then(cursos => {
+        const contenedor = document.getElementById("cursos");
+        cursos.forEach(curso => {
+          let link = "#";
+          if (curso.title.includes("SQL")) {
+            link = "https://www.youtube.com/watch?v=OuJerKzV5T0";
+          } else if (curso.title.includes("Estadísticos")) {
+            link = "https://www.youtube.com/watch?v=zkP2kXpYU8I&list=PLXlXaLHdpEIUkQXpX5EwWOfQsK4bB7qL0";
+          }
+
+          contenedor.innerHTML += `
+            <div class="course">
+              <h3>${curso.title}</h3>
+              <p>${curso.description}</p>
+              <a href="${link}" target="_blank">
+                <button>Ver contenido</button>
+              </a>
+            </div>
+          `;
+        });
+      })
+      .catch(err => {
+        document.getElementById("cursos").innerHTML = "<p>Error al cargar los cursos. Intenta más tarde.</p>";
+        console.error(err);
+      });
+  }
+</script>
+
+</body>
+</html>
