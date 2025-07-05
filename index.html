@@ -3,19 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plataforma de Cursos</title>
+  <title>Plataforma de Cursos Lite</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    #login, #content { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { color: #333; }
-    .course { margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 15px; }
-    button { padding: 10px 15px; background-color: #0078D7; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background-color: #005a9e; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f0f2f5;
+    }
+    header {
+      background-color: #004aad;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    .logo {
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .container {
+      max-width: 700px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+    input {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #004aad;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #00337f;
+    }
+    .course {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #ddd;
+    }
+    .course h3 {
+      margin: 0.5rem 0;
+    }
+    .hidden {
+      display: none;
+    }
+    #logout {
+      float: right;
+      font-size: 0.9rem;
+      background: #f44336;
+      padding: 6px 10px;
+    }
+    #logout:hover {
+      background: #d32f2f;
+    }
+    @media(max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #logout {
+        margin-top: 10px;
+        float: none;
+      }
+    }
   </style>
 </head>
 <body>
 
-<div id="login">
+<header>
+  <div class="logo">🎓 Cursos Lite</div>
+  <button id="logout" class="hidden" onclick="cerrarSesion()">Cerrar sesión</button>
+</header>
+
+<div class="container" id="login">
   <h2>Bienvenido</h2>
   <p>Ingresa tu nombre para continuar:</p>
   <input type="text" id="nombre" placeholder="Ej: maria.gomez" />
@@ -23,7 +104,7 @@
   <p id="error" style="color: red;"></p>
 </div>
 
-<div id="content" style="display:none;">
+<div class="container hidden" id="content">
   <h2>Cursos disponibles</h2>
   <div id="cursos"></div>
 </div>
@@ -34,12 +115,21 @@
   function verificarUsuario() {
     const nombre = document.getElementById("nombre").value.trim().toLowerCase();
     if (estudiantesAutorizados.includes(nombre)) {
-      document.getElementById("login").style.display = "none";
-      document.getElementById("content").style.display = "block";
+      document.getElementById("login").classList.add("hidden");
+      document.getElementById("content").classList.remove("hidden");
+      document.getElementById("logout").classList.remove("hidden");
       cargarCursos();
     } else {
       document.getElementById("error").innerText = "Usuario no autorizado.";
     }
+  }
+
+  function cerrarSesion() {
+    document.getElementById("content").classList.add("hidden");
+    document.getElementById("login").classList.remove("hidden");
+    document.getElementById("logout").classList.add("hidden");
+    document.getElementById("nombre").value = "";
+    document.getElementById("error").innerText = "";
   }
 
   function cargarCursos() {
@@ -47,6 +137,7 @@
       .then(res => res.json())
       .then(cursos => {
         const contenedor = document.getElementById("cursos");
+        contenedor.innerHTML = ""; // limpiar antes
         cursos.forEach(curso => {
           let link = "#";
           if (curso.title.includes("SQL")) {
